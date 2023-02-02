@@ -1,0 +1,226 @@
+{"registry-mirrors":["https://57olpof0.mirror.aliyuncs.com"]}
+centos配置加速镜像
+	请在 /etc/docker/daemon.json 中写入如下内容（如果文件不存在请新建（touch)该文件）：
+	{"registry-mirrors":["https://reg-mirror.qiniu.com/"]}
+	之后重启服务sudo service docker restart
+pull镜像（默认最新版）
+	 docker pull nginx
+删除镜像(-f  强制删除）
+	docker rmi -f image
+开启容器(开启一个容器并运行一个命令)
+	docker run [options] image [command] [arg]
+	-a stdin: 指定标准输入输出内容类型，可选 STDIN/STDOUT/STDERR 三项；
+	-d: 后台运行容器，并返回容器ID；
+	-i: 以交互模式运行容器，通常与 -t 同时使用；
+	-P: 随机端口映射，容器内部端口随机映射到主机的端口
+	-p: 指定端口映射，格式为：主机(宿主)端口:容器端口 
+	-t: 为容器重新分配一个伪输入终端，通常与 -i 同时使用；
+	--name="nginx-lb": 为容器指定一个名称；
+	--dns 8.8.8.8: 指定容器使用的DNS服务器，默认和宿主一致；
+	--dns-search example.com: 指定容器DNS搜索域名，默认和宿主一致；
+	-h "mars": 指定容器的hostname；
+	-e username="ritchie": 设置环境变量；
+	--env-file=[]: 从指定文件读入环境变量；
+	--cpuset="0-2" or --cpuset="0,1,2": 绑定容器到指定CPU运行；
+	-m :设置容器使用内存最大值；
+	--net="bridge": 指定容器的网络连接类型，支持 bridge/host/none/container: 四种类型；
+	--link=[]: 添加链接到另一个容器；
+	--expose=[]: 开放一个端口或一组端口； 
+	--volume , -v: 绑定一个卷
+使用镜像开启一个容器（-d容器一直后台运行）
+	 docker run --name nginx-test -p 8080:80 -d nginx
+删除容器(强制删除容器 db01 db02）
+	docker rm -f db01 db02
+删除所有停止容器
+	docker rm $(docker ps -a -q)
+手动指定容器名字启动(-i   交互式启动，即启动就进到容器里）
+	docker run -it --name="names"  image_id
+重启容器
+	docker start -i image_id
+查看所有容器状态
+	docker container ls -a
+查看容器详细信息(里面 Mounts:挂载卷）
+	docker inspect names
+守护式容器(-d    一直运行）
+	docker run -d --name="name_cent" image_id
+守护式容器关闭和启动
+	docker container stop names
+	docker container start names
+交互式容器关闭和启动(退出容器，即关闭容器）
+	docker container stop names
+	docker container start -i names
+服务类容器开放端口
+	docker run -d -p 8080:80  --name="name_cent" image_id
+交互式容器（工具类：开发，测试，临时性的任务）
+	docker run -it --name="names" --rm  image_id
+容器连接(容器退出，容器即停止，win10下进不去）
+	docker attach names（以镜像方式进入可能已操作的容器，后续进入当前容器的实现同步操作）
+容器连接(容器退出，不会停止运行）
+	docker exec -it names /bin/bash(子进程方式登录：已有工作容器中生成子进程再进入当前容器） 
+容器导出（这样将导出容器快照到本地文件）
+	docker export 1e560fca3906 > ubuntu.tarimage
+查看cpu状态
+	docker stats
+增加内存限制(-e  环境配置修改）
+	docker run -d --name name1 -p 9200:9200 -e "discovery.type=single-node" -e ES_JACA_OPTS="-Xms64m -Xmx512m" elasticsearch
+提交镜像（目标镜像名：发布后，方便别人pull）（保存容器为一个镜像，换言之为快照）
+	docker commit -a="作者" -m="提交的描述信息" 容器id 目标镜像名
+容器数据卷（即把容器内目录挂载到宿主目录）
+	docker run -it -v 主机目录：容器目录 centos /bin/bash 
+查看所有卷
+	docker volume ls
+匿名和具名没有容器外路径
+	具名：默认在宿主/var/lib/docker/volumes/juming-nginx/_data下
+	匿名：默认在宿主/var/lib/docker/volumes/随机base64/_data下
+匿名挂载(-v 容器内目录）
+	docker run -d -P --name nginx01 -v /etc/nginx nginx
+具名挂载(-v 卷名：容器内目录）
+	docker run -d -P --name nginx02 -v juming-nginx:/etc/nginx nginx
+读写权限(ro：容器只能读  rw：容器可读可写）
+	docker run -d -P --name nginx02 -v juming-nginx:/etc/nginx：ro nginx
+	docker run -d -P --name nginx02 -v juming-nginx:/etc/nginx：rw nginx
+dockerfile(-f 本地镜像  -t name:tag)
+	docker build -f /home/dockerfile -t kuangshen/centos:1.0 .
+	FROM 基础镜像
+	MAINTAINER镜像作者信息
+	RUN镜像构建需要运行的命令
+	ADD步骤: tomcat镜像，这个tomcat压缩包!添加内容
+	WORKDIR镜像的工作目录
+	VOLUME挂载的目录
+	EXPOSE保留端口配置
+	CMD指定这个容器启动的时候要运行的命令，只有最后一个会生效，可被替代
+	ENTRYPOINT指定这个容器启动的时候要运行的命令,可以追加命令
+	ONUBILD当构建一个被继承DockerFile 这个时候就会运行ONBUILD的指令。 触发指令。
+	COPY类似ADD，将我们文件拷贝到镜像中
+	ENV构建的时候设置环境变量!
+
+
+	
+base=https://github.com/docker/machine/releases/download/v0.14.0 && curl -L $base/docker-machine-$(uname -s)-$(uname -m) >/tmp/docker-machine && sudo install /tmp/docker-machine /usr/local/bin/docker-machine
+
+
+##docker swarm
+docker config
+    # 查看已创建配置文件
+    - docker config ls
+    # 将已有配置文件添加到docker配置文件中
+    - docker config create docker 配置文件名 本地配置文件
+ # 管理swarm节点
+docker node
+    # 查看集群中的节点
+    - docker node ls
+    # 将manager角色降级为worker
+    - docker node demote 主机名
+    # 将worker角色升级为manager
+    - docker node promote 主机名
+    # 查看节点的详细信息，默认json格式
+    - docker node inspect 主机名
+          # 查看节点信息平铺格式
+          - docker node inspect --pretty 主机名
+    # 查看运行的一个或多个及节点任务数，默认当前节点
+    - docker node ps
+    # 从swarm中删除一个节点
+    - docker node rm 主机名
+    # 更新一个节点
+    - docker node update
+          # 对节点设置状态（“active”正常|“pause”暂停|“drain”排除自身work任务）
+          - docker node update --availability
+ # 管理敏感数据存储
+docker secret
+# 服务栈，栈的形式，一般作为编排使用，格式与docker compose相同。
+docker stack
+    # 通过.yml文件指令部署
+    - docker stack deploy -c 文件名.yml 编排服务名
+    # 查看编排服务
+    - docker stack ls
+ docker stack 不支持使用参数
+# 作为集群的管理
+docker swarm
+    # 初始化一个swarm
+    - docker swarm init
+          # 指定初始化ip地址节点
+          - docker swarm init --advertise-addr 管理端IP地址
+          # 去除本地之外的所有管理器身份
+          - docker swarm init --force-new-cluster
+    # 将节点加入swarm集群，两种加入模式manager与worker
+    - docker swarm join
+          # 工作节点加入管理节点需要通过join-token认证
+          - docker swarm join-token
+          # 重新获取docker获取初始化命令
+          - docker swarm join-token worker
+    # 离开swarm
+    - docker swarm leave
+    # 对swarm集群更新配置
+    - docker swarm update
+# 服务管理
+docker service
+    # 创建一个服务
+    - docker service create
+          # 创建的副本数
+          - docker service create --replicas 副本数
+          # 指定容器名称
+          - docker service create --name 名字
+          # 每次容器与容器之间的更新时间间隔。
+          - docker service create --update-delay s秒
+          # 更新时同时并行更新数量，默认1
+          - docker service create --update-parallelism 个数
+          # 任务容器更新失败时的模式，（“pause”停止|”continue“继续），默认pause。
+          - docker service create --update-failure-action 类型
+          # 每次容器与容器之间的回滚时间间隔。
+          - docker service create --rollback-monitor 20s
+          # 回滚故障率如果小于百分比允许运行
+          - docker service create --rollback-max-failure-ratio .数值（列“.2”为%20）
+          # 添加网络
+          - docker service create --network 网络名
+          # 创建volume类型数据卷
+          - docker service create --mount type=volume,src=volume名称,dst=容器目录
+          # 创建bind读写目录挂载
+          - docker service create --mount type=bind,src=宿主目录,dst=容器目录
+          # 创建bind只读目录挂载
+          - docker service create --mount type=bind,src=宿主目录,dst=容器目录,readonly
+          # 创建dnsrr负载均衡模式
+          - docker service create --endpoint-mode dnsrr 服务名
+          # 创建docker配置文件到容器本地目录
+          - docker service create --config source=docker配置文件,target=配置文件路径
+          # 创建添加端口
+          - docker service create --publish 暴露端口:容器端口 服务名
+    # 查看服务详细信息，默认json格式
+    - docker service inspect
+          # 查看服务信息平铺形式
+          - docker service inspect --pretty 服务名
+    # 查看服务内输出
+    - docker service logs
+    # 列出服务
+    - docker service ls
+    # 列出服务任务信息
+    - docker service ps　　　　
+          # 查看服务启动信息
+          - docker service ps 服务名
+          # 过滤只运行的任务信息
+          - docker service ps -f "desired-state=running" 服务名
+    # 删除服务
+    - docker service rm
+    # 缩容扩容服务
+    - docker service scale
+          # 扩展服务容器副本数量
+          - docker service scale 服务名=副本数
+    # 更新服务相关配置
+    - docker service update
+          # 容器加入指令
+          - docker service update --args “指令” 服务名
+          # 更新服务容器版本
+          - docker service update --image 更新版本 服务名         
+         # 回滚服务容器版本
+         - docker service update --rollback 回滚服务名
+          # 添加容器网络
+          - docker service update --network-add 网络名 服务名
+          # 删除容器网络
+          - docker service update --network-rm 网络名 服务名
+          # 服务添加暴露端口
+          - docker service update --publish-add 暴露端口:容器端口 服务名
+          # 移除暴露端口
+          - docker service update --publish-rm 暴露端口:容器端口 服务名
+          # 修改负载均衡模式为dnsrr
+          - docker service update --endpoint-mode dnsrr 服务名
+          # 添加新的配置文件到容器内
+          - docker service update --config-add 配置文件名称，target=/../容器内配置文件名 服务名

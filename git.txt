@@ -1,0 +1,38 @@
+下载安装git
+登录gitee网页
+在本地获取ssh密钥
+网页添加本地密钥
+复制项目ssh链接
+在本地git init
+git remote add origin 链接
+git pull
+git branch -a
+git checkout master
+ok
+
+
+//修改后查看并提交
+git status
+git add .
+git commit -m "modifyed"
+git push origin master
+
+
+本地项目发送到git（创建git仓库）
+	dotnet new mvc -o MvcTest
+	git init
+		[项目修改....]
+	git add .          //文件下所有文件添加到暂存区       
+		[git status查看当前项目是否全绿，即都待提交]
+	git commit -m "MvcTest"    //提交暂存区到本地仓库
+	git remote add origin https://gitee.com/li_shuai_shuai/git-test.git  	//将本地仓库和远程仓库关联
+		[git branch查看本地当前分支]
+	git push -u origin master	//将当前分支提交到远程master分支
+
+	
+	git branch -v 查看當前分支
+	git add .		將修改文件添加到緩衝區
+	git status		查看修改的文件
+	git diff 		查看具體修改文件内容
+	git commit -m "new commit"		標記新的提交
+	git push -u origin main

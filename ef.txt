@@ -1,0 +1,132 @@
+Ienumerable<Guid>.contains(guid)    mysql   guid对应varchar类型  正常
+Ienumerable<guid>.contains(guid)    slqite    guid对应text类型	      功能实现不了  sqlite有hasconvsion
+
+action中返回对象为空的话返回的是204，可以通过在添加controllers服务配置中(options.OutputFormatters.RemoveType<HttpNoContentOutputFormatter>();)
+可以删除内置string返回类型格式(options.OutputFormatters.RemoveType<StringOutputFormatter>();)，若提供xml格式化程序，则xml格式化程序设置string返回类型格式
+否则string返回类型返回406 Not Acceptable
+httpgetaction中para不能含[fromBody]
+valueConversion :string 转 bool    HasConversion<bool>()这样不行HasConversion(new StringToBoolConverter());
+
+》》大坑
+********不能跨上下文
+一个dbcontext中不能使用另一个dbcontext中的任何没有转到内存中的数据，
+********，同一个上下文不能追踪同一个对象两次
+EF单次的请求里，SaveChange不会释放entity的track，所以修改数据后尽快设置状态为Detached
+或者新new Dbcontext，不同的上下文可以追踪同一个
+
+dbcontext池
+如果派生的dbcontext中有私有数据，请避免使用dbcontext池，efcore dbcontext只会设置已知的状态在添加到池之前
+
+使用dbcontextPool，就会一直创建连接不释放直到上限，当值大于数据库连接池上限，数据库池中连接索引超出报错
+services.AddDbContextPool<JobDb>(option =>
+    option.UseSqlServer(Configuration.DbConnectionStr()), 
+    poolSize: 64);
+
+##增删查改
+使用LastOrDefault必须先进行排序
+
+Find是直接访问数据库的
+
+Remove只能删除context所追踪的数据，即先查出来才能删除
+修改也只能修改context所追踪的对象
+
+Update（object）将对象设为追踪状态，除主键均为修改状态(可以设定某个为修改状态)
+对于传来的json或者没有没追踪到的数据，可以使用context.update直接追踪
+（防止关联属性修改）Context.Entry(Player).State=EntityState.Modified; 
+
+Attach()  ：将给定实体以 System.Data.EntityState.Unchanged 状态附加到上下文中
+Attach可以只将某个修改的值设为修改状态，其他的不会被更新
+Add	添加数据（有主键）		添加数据（无主键）
+Update	修改数据（有主键）		同上
+Attach	不变化（有主键）		同上
+
+Context无法追踪匿名类，只能追踪它识别的类，但它里面有识别的类仍可以追踪到
+Context.Set<>可以追踪到，没有在Dbset中体现，但与dbset有关联的类
+AsNotracking 仍然没有访问数据库，在dbcontext的OnConfiguring中可以全局设置AsNoTracking
+options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+
+关联中查询并不是用where而是用include
+var filteredBlogs = context.Blogs
+        .Include(
+            blog => blog.Posts
+                .Where(post => post.BlogId == 1)
+                .OrderByDescending(post => post.Title)
+                .Take(5))
+        .ToList();
+只能对每个包含的导航执行一组唯一的筛选器操作。 如果为某个给定的集合导航应用了多个包含操作
+（下例中为 blog.Posts则只能对其中一个导航指定筛选器操作：
+using (var context = new BloggingContext())
+{
+    var filteredBlogs = context.Blogs
+        .Include(blog => blog.Posts.Where(post => post.BlogId == 1))
+        .ThenInclude(post => post.Author)
+        .Include(blog => blog.Posts)
+        .ThenInclude(post => post.Tags.OrderBy(postTag => postTag.TagId).Skip(3))
+        .ToList();
+}
+
+
+
+
+##Model
+一对多中，
+多中，仅根据<list>导航，可以在一中创建一个可以为《NULL》的字段名（导航+Id）
+一中：（不仅多中有list导航，一中还有下面的，则可以创建一个不可为《NULL》的字段）
+	Public Club Club{	get;	set;}//其实可以省略，导航仅一侧有就ok
+	Public int ClubId{	get;	set;}//添加一个字段，并将外键附加上去
+
+一对一中，应在两个中都指明导航属性，并在context中指定谁是外键
+
+多对多中，
+	仅根据（Game和Player)表list导航，中间表没任何东西
+		默认会为中间表添加GameId PlayerId外键字段，且可为NULL
+	再将下面的添加到中间表，则这俩字段不可为空
+		public int GameId{	get;	set;}
+		public int PlayerId{	get;	set;}
+
+
+
+[fromquery]参数查询模型绑定时候，private pageIndex和public pageindex不能一样，私有应是_pageIndex，一个值不能绑定多个模型属性
+[frombody]只能获取一次body值，
+多次获取实现：不写frombody
+	Request.EnableBuffering();
+	 using (var rea = new StreamReader(Request.Body))
+                {
+                    var body =await rea.ReadToEndAsync();
+                    Console.WriteLine(body.ToString());
+                    // Do something
+                    Request.Body.Position = 0 ;
+                    body = await rea.ReadToEndAsync();
+                }
+ef group by 时候要groupby  select tolist
+
+可以观看到正在被追踪的实体
+context.ChangeTracker.DetectChanges();
+Console.WriteLine(context.ChangeTracker.DebugView.LongView);
+
+
+性能：
+（传入id）每次修改删除ef都请求了两次数据库，（传入对象）attach追踪后访问数据库一次
+通常不需要将实体附加到用于查询实体的那个 DbContext 实例。 请勿经常执行无跟踪查询，然后将返回的实体附加到同一个上下文。
+ 这比使用跟踪查询慢，还可能造成影子属性值缺失等问题，更难正确操作
+
+foreach (var employee in context.Employees)
+    employee.Salary += 1000;
+context.SaveChanges();
+ef执行一次数据库往返，加载所有相关员工，更改追踪找到哪些属性更改，第二次数据库王芳保存所有更改。
+建议：context.Database.ExecuteSqlRaw("update [employees] set Salary=Salary+1000");、
+
+
+模型：
+modelBuilder.Entity<IdentityUser>().ToTable("AspNetUsers",t=>t.ExcludeFromMigrations());
+此配置迁移不会创建AspNetUser表，但模型IentityUser仍可以使用
+().ToView("blogView",
+实体映射到视图
+[notmapped]排除实体到数据库表的属性的映射
+[column("blog_id")]指定数据库列名
+[column(TypeName="varchar(200)")]列数据类型(可用于值转换）
+[maxLength(500)]最大长度
+[comment]表列注释
+id或<type_name>Id属性被配置为实体的主键，没有该属性需要[key]指定某属性作为key
+.HasKey(c=>new {c.state,c.plate});组合键
+.HasKey(b=>b.BlogId).HasName("primaryKey_BlogId");数据库主键名称

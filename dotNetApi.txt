@@ -1,0 +1,78 @@
+内容协商
+
+public void ConfigureServices(IserviceCollection services)
+{
+	services.AddControllers(setup=>
+	{
+		//不支持请求的Accept返回406
+		setup.ReturnHttpNotAcceptable=true;
+	}).AddXmlDataContractSerializerFormatters();//请求xml返回xml
+}
+
+AutoMapper（extensions for ASP.NET Core)
+
+Entity Model(company)      ViewModel(companyDto)
+services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());//扫描所有程序集
+Public class CompanyProfile:Profile
+{
+	ctor()
+	{
+		CreateMap<Company,CompanyDto>()
+		.ForMember(
+			dest=>dest.CompanyName,
+			opt=>opt.MapFrom(src=>src.Name));
+	}
+}
+var companies=await  _companyRepository.GetCompaniesAsync();
+var companyDtos=_mapper.Map<IEnumerable<CompanyDto>>(companyies);
+
+From
+
+action中参数的复杂类型，默认从body里面取，若来源为查询字符串，需指明FromQuery
+
+安全性和幂等性
+
+安全性：指方法执行后并不会改变资源的描述
+幂等性：指方法无论执行多少次都会得到同样的结果
+Http方法		安全	幂等
+get		是	是	请求，返回实体body
+options		是	是	允许客户端查看服务器性能
+head		是	是	类似get，但body没内容，用户获取报头
+post		否	否	创建或修改
+delete		否	是	删除
+put		否	是	更新
+patch		否	否	局部更新
+
+自定义错误信息(当state.isvalid返回false执行)      //第三方FluentVaildation
+
+services.ConfigureApiBehaviorOptions(setup=>{
+	setup.InvalidModelStateResponseFactory=context=>{
+		var problemDetails=new ValidationProblemDetails(context.ModelState)
+		{
+			Type="http://www.....",
+			Title="有错误!!",
+			Status=StatusCodes.Status422UnProcessableEntity,
+			Detail="请看详细信息",
+			Instance=context.HttpContext.Request.Path
+		};
+		problemDetails.Extensions.Add("traceId",context.HttpContext.TraceIdentifier);
+		return new UnprocessEnableEntityObjectResult(problemDetails)
+		{
+			ContentTypes={"application/problem+json"}
+		};
+	};
+});
+
+get请求
+	$.ajax({	(url:"",type:"get",data:user,success(function(data){}))	})
+	((fromUrl)User user)	api这样写才可以接受	不写默认是从frombody中获取数据的
+
+post请求
+	$.ajax({	(url:"",type:"post",data:{"id":"1"},success(function(data){}))	})	请求单个值
+	（int id）   前台请求需要改为data:{"":1}
+
+	$.ajax({	(url:"",type:"post",data:user,success(function(data){})),datatype:"json",	})	请求多个值
+	(User user)	ok
+	$.ajax({	(url:"",type:"post",data:JSON.stringify(user),success(function(data){})),datatype:"json",contentType:"application/json"})
+	将对象转为字符串传递，需指定contentType类型
+	

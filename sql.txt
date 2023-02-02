@@ -1,0 +1,125 @@
+pg like 全模糊优化
+ create index t1_c1_gin_idx on t1 using gin(c1 gin_trgm_ops);
+
+
+
+server=127.0.0.1;uid=sa;pwd=123456;database=Power
+
+mysql》》》
+判断MySQL表是否存在
+	$"select count(1) from information_schema.tables where table_name ='grouplist_{proc_guid}'";
+存储过程中不等于NULL 是 is not null 可以写多个if endif
+游标赋值的时候不能和字段名字一样，并且在当前游标结束时候重新给变量赋值
+DECLARE report CURSOR FOR SELECT id,taskId,userId,selectId,fileIdStr,flow_id,flowtype,vpntype,agency,apptype,app from flow_analysis WHERE flow_id=pidd;
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET s=1; 
+	OPEN report;
+		FETCH report into g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11;
+		while s<>1 do
+				if(g7 is NOT NULL) then 
+				   SET f=g7;
+				END if;
+			  	if(g8 is NOT NULL) then 
+				   SET v=g8;
+				END if;
+				DELETE FROM flow_analysis WHERE id=g1;
+				FETCH report into g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11;
+		END WHILE;
+	CLOSE report;
+sql查询空的话用DBNULL.VALUE判断，不能直接转换
+
+
+explain
+	id:select查询的序列号，包含一组数字，表示查询中执行select子句或操作表的顺序
+	select_type:分别用来表示查询的类型，主要是用于区别普通查询、联合查询、子查询等的复杂查询。
+	table:指的是当前执行的表
+	type:system > const > eq_ref > ref > range > index > all
+	possible_keys:显示可能应用在这张表中的索引，一个或多个。查询涉及到的字段上若存在索引，则该索引将被列出，但不一定被查询实际使用。
+	key:实际使用的索引，如果为NULL，则没有使用索引。
+	key_len:表示索引中使用的字节数
+	ref:显示索引的那一列被使用了
+	rows:根据表统计信息及索引选用情况，大致估算出找到所需的记录所需要读取的行数
+	extra:
+		using filesort:说明mysql会对数据使用一个外部的索引排序，而不是按照表内的索引顺序进行读取。MySQL中无法利用索引完成的排序操作称为“文件排序”。
+		using temporary:使用了用临时表保存中间结果，MySQL在对查询结果排序时使用临时表。常见于排序order by和分组查询group by。
+		using index:表示相应的select操作中使用了覆盖索引（Covering Index），避免访问了表的数据行，效率不错	
+		using where:表明使用了where过滤
+		using join buffer:表明使用了连接缓存,比如说在查询的时候，多表join的次数非常多，那么将配置文件中的缓冲区的join buffer调大一些。
+		impossible where:where子句值一直为false
+		
+
+
+索引
+	create index Y on Student(id,name)
+	alter Table Add Index S(id,name)
+	show index from Table
+	drop index Y
+
+索引失效
+	//where id='' and name='' and age=''	用到索引
+	//where id='' and age=''		用到第一个索引id
+	//where id='' and name in () and age=''type=range，没用到索引	
+	
+	//where name='july'		type=ref
+	//where left(name,4)='july'		type=all
+优化：
+	全值匹配我最爱
+	最佳左前缀法则：如果索引了多列，要遵守最左前缀法则。指的是查询从索引的最左前列开始并且不跳过索引中的列。
+	不在索引列上做任何操作（计算，函数，类型转换），会导致索引失效而全表扫描
+	范围之后全失效
+	尽量使用覆盖索引（只访问索引的查询，索引列与查询列一致），减少select *
+	mysql在使用(!=   <>)的时候无法使用索引会导致全表扫描
+	is null  ,is not null 无法使用索引
+	like 以通配符开头索引失效，like '%as%'(type=all)  like '%as'(all)  like 'as%'(range);like%写右边;覆盖索引可解决左右%
+	字符串不加单引号索引失效
+	or索引失效
+sql优化
+	数据库form，where采用自右向左的顺序解析
+		form表名顺序，表无关系，记录条数最少的放在最后
+		          表有引用，引用最多的表放在最后
+		where连接顺序，可以过滤最大数量记录的条件写到最右
+	用truncate代替delete，仅删除表全部记录，保留表结构，delete是一条一条删除
+	使用别名简短表和列的长度
+	用>=代替>
+	用in代替or
+	
+其他：
+	order by排序，group by先排序在分组和order by一样效果
+	范围之后都失效
+		where a=3 and b>4 and c=5		//type=range	key_len=62	用到两个索引
+		where a=3 and b like 'kk%' and c=5	//type=range	key_len=93	三个索引
+		where a=3 and b like '%kk' and c=5	//type=ref	key_len=31	一个
+		where a=3 and b like '%kk%' and c=5	//type=ref	key_len=31	一个
+		where a=3 and b like 'k%kk%' and c=5	//type=range	key_len=93	三个
+查询优化
+	in exists，左表大in右表小；左表小exists右表大
+	order by
+		尽量使用index排序
+		尽量不要select *
+		增大sort_buffer_size   max_length_for_sort_data
+	注:a	a,b	a,b,c	a desc,b desc, c desc
+	where a=const order by bc
+	where a=const and b=const order by c
+	where a=const and b>const order by b c
+	不能使用索引排序：
+	order by a asc ,b desc , c desc
+	where g=const order by b ,c
+	where a=const order by c
+	where a=const order by a, d
+	where a in (...) order by b ,c
+	group by
+		先排序再分组
+		尽量写到where中，不要写having中
+		增大sort_buffer_size   max_length_for_sort_data
+慢查询日志
+	show variables like '%slow_query_log%'	//查询是否开启
+	set global slow_query_log=1		//当前生效//开启慢查询日志
+	show variables like 'long_query_time%'		//查询时间阙值
+	set global long_query_time=3		//需要重新开一个会话才生效
+	[mysqld]配置
+	slow_query_log=1
+	slow_query_log_file=/var/lib/....
+	long_query_time=3
+	log_output=FILE
+	
+	
+	

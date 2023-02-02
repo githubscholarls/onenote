@@ -1,0 +1,141 @@
+stream     https://juejin.cn/post/7028439051308892167
+	一个流对应多个消费者组（消费者组创建依赖于某一个流），一个消费者组对应多个消费者
+	
+	xadd 存在竞争关系
+	//key不存在指令没有效果，最大存3个流消息 自动生成id 增加一个firstkey是firstvalue的数据
+	XAdd no-exist-stream maxlen=3 * firstkey firstvalue
+	//最开始的消息被挤出去了,消息中没有f1 f11
+	XAdd stream  maxlen=3 * f1 f11 f2 f22 f3 f33 f4 f44
+	
+	//阻塞2s等待消息没有消息返回nil
+	XRead block 2000 streams mystream $
+	//一直阻塞，直到(Xadd mysteam * new neww)，若突然(Xadd)大量消息，会出现消息读取丢失
+	XRead block 0 streams mystream $      //有返回id
+	//顺序消费，不会丢失数据
+	//XRead block 0 streams mysteam id
+
+	创建流
+	_redisManager.Instance.XAdd(_analysisTaskEndStream, "*", ("AnalysisEnd", "0"));
+
+	创建消费者组
+	_redisManager.Instance.XGroupCreate(stream1,group1);
+
+	(string key, (string id, string[] items)[] data)[] product;
+	读取组数据(consumer1读取组中我自己未读取的最新的一条数据，没有数据等待1s)
+	product = _redisManager.Instance.XReadGroup(group1, consumer1, 1, 1000, (stream1, ">"));
+
+	告诉组我这个消费者我处理到了当前id的消息(消费者组更新未被消费者消费的第一个id)
+	_redisManager.Instance.XAck(stream1, group1, product[0].data[0].id);
+	
+
+
+
+
+key
+	 *	keys w*(word,with)
+	?	keys wo?d(word,wood)
+	[]	keys h[ab]llo(hallo,hbllo)
+	exists	exists k1 k2
+	move	move k1 [dbindex]
+	ttl	ttl k1
+	expire	expire k1 20
+	type 	type k1
+	rename	rename key newkey
+	del	del key[key ...]
+string
+	set key value
+	mset k1 v1 k2 v2
+	get key
+	mget k1 k2
+	append key value
+	strlen key
+	incr key	incrby key number
+	decr key	decrby key number
+	getrange key startindex endindex
+	setrange key startindex value		//覆盖开始索引后面的字符串，可能覆盖不完全
+	setex k1 number v1		//指定生命周期
+	setnx k1 value			//如果key不存在则设置
+	msetnx k1 v1 k2 v2			//所有值不存在则设置
+list
+	lpush rpush
+	lpop rpop
+	lrange list startindex endindex
+	lindex list index
+	llen list
+	lrem list count value		//移除list中count个等于value值,count等于0，移除所有value值
+	ltrim list startindex endindex		//截取list中指定区间覆盖原先list
+	lset list index value			//设置list中指定下标value
+	linsert list before/after pivot value	//插入value值到list中指定pivot索引之前/后
+	
+set（无序不重复集合）
+	sadd myset hello
+	sadd myset kuang
+	smembers myset  		//查看set的所有值
+	sismember myset 		//判断某一个值是否存在
+	scard myset 		//获取集合中的元素个数
+	srem myset hello 		//删除集合中指定元素
+	sRandMember myset [count]	//随机抽选出一个[count个]元素(count>0不会重复,count<0有可能会重复)
+	spop myset [count]		//随机移除一个[count个]元素
+	smove myset myset2 kuang	//移动集合中的元素到另一个集合
+	sdiff myset myset2 [...]	//获取第一个集合和后面其他集合的差集
+	sinter myset myset2 [...]	//获取交集
+	sunion myset myset2 [...]	//获取并集
+hash
+	hset key field value
+	hget key field
+	hmset key field1 value1 field2 value2
+	hmget key field1 field2
+	hgetall key		//获取所有key、value
+	hdel key field		//删除指定key的字段
+	hlen key 			//获取hash的字段个数
+	hexists key field		//判断key中指定字段是否存在
+	hkeys key		//获取hash所有key
+	hvals key			//获取所有value
+	hincrby[float] key field 2	//key中字段自增
+	hdecrby			//
+	hsetnx key field hello	//如果不存在则可以设置
+zset（有序集合）
+	zadd myset score value	//设置集合中的一个带分数的值
+	zrange myset 0 -1
+	zrevrange myset 0 -1     	//集合从大到小排序
+	zrangebyscore myset (5 (8  或者  (4 9
+				//大于5小于8  或者  大于4小于等于9
+	zrangebyscore myset -inf +inf 
+				//获取集合中分数从负无穷到正无穷的值
+	zrangebyscore myset -inf +inf withscores
+				//获取集合中指定分数范围内的值和分数
+	zrem myset value		//移除集合中的指定value元素
+	zcard myset 		//获取集合元素个数
+	zcount myset min max 	//获取指定分数区间的元素个数
+	zrank myset member	//获取member元素的排名
+	zrevrank myset member	//逆序获取元素排名
+	zscore myset member	//获取元素的分数
+	
+geospacital
+
+hyperloglog（统计不重复元素，12k可以存放2^64元素）
+	PFadd mykey a b c a a a
+	PFcount mykey		//统计基数元素数量(为3)
+	PFMerge mykey3 mykey1 mykey2
+				//合并基数1和2到3中
+bitmap(二进制存储)
+	setbit key offset value	//设置key指定offset的二进制为value
+	getbit key offset
+	bitcount key [start end]	//获取key中区间内为1的个数
+事务：一组命令的集合
+	redis的事务不保证原子性的！！！
+	事务中	编译异常，所有命令都不会执行
+		运行异常，其他正常命令可以执行
+	multi			//开启事务
+	......			//命令入队
+	exec			//执行命令
+	discard			//取消执行
+监听watch
+	watch key 【key】
+	multi
+	.....
+	exec//若发现watch的key被其他线程改变，则不会执行事务
+分布式锁
+	setnx lock-01 value		//返回1则改锁没有被占用	0该锁被占用
+
+	

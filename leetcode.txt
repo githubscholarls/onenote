@@ -1,0 +1,53 @@
+
+	序列式容器（list，vector，deque，queue） 
+		使用erase会返回下一个有效的迭代器										反向迭代器不能使用erase
+	关联式容器（map，set，multi）
+		使用erase会使当前迭代器失效，在erase时it++就可以	
+queue
+	
+	priority_queue<int> q;			//默认从大到小
+	priority_queue<int,vector<int>,greater<int>> q;//从小到大优先队列
+	priority_queue<int,vector<int>,less<int>> q;	//从大到小优先队列
+	q.top()
+	q.pop()
+	q.push()
+	q.empty()
+	q.size()
+vector
+	可以指定下标存数据，下标可以不连续，直接相等比较与vector，滑动窗口可以用到
+	vector<int> v(arr,arr+sizeof(arr)/sizeof(int))
+	vector<int> v(4,0)
+	vector<int> v1(v)
+	v2.reserve(100)				//预留100个capacity，size没变
+	v3.resize(10,4)				//分配10个值为4的空间
+	v4.assign(v3,v3+2)    v4.assign(5,4)		//清除原始并赋新值
+	v5.push_back(2)
+	v5.insert(iterator it,const T& x)
+	v5.insert(iterator it,int n,const T& x)
+	v5.insert(iterator it,const_iterator first,const_iterator last)
+	v6.pop_back()
+	v.erase(iterator it)				
+	v.erase(iterator first,iterator last)
+	v.end()					//返回引用
+	v.begin()
+	v.front()					//返回元素
+	v.back()
+	v.empty()
+	v.size()
+	v.capacity()				//容器预留空间
+	v7.swap(v6)				//交换两个容器
+	v.clear()
+
+
+语法：
+	//只读方式
+	for(int num:arr)
+		cout<<num;			//不能给num赋值
+	//修改值
+	for(int& num:arr)
+		num=1;				//本质是迭代器，若增加和删除arr会出现错误
+	for(vector<int>& d:dp)
+            		d[0]=1;		
+	int num=count(vector.begin(),vector.end(),target)
+	bool comp(int val){		return val%2;}
+	int ifNum=count_if( , ,comp);	

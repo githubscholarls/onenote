@@ -1,0 +1,13 @@
+对于强类型hub(IChatHub<CustomHub>)，只发送抽象的第一个参数
+ public class ServiceHub : Hub<CustomHub>{
+   public async Task  SeedRate(object message){
+	Clients.Caller.UploadRateListToCaller(object message);
+}
+public Interface CustomHub{
+Task UploadRateListToCaller(object message);//只发送message
+Task GetDownloadFileChunk(string user, object message);//只发送user
+}
+
+如果仅通过指定不同的参数类型来区分重载，则中心类将编译，但在客户端尝试调用其中一个重载时，SignalR 服务会在运行时引发异常
+
+若依赖注入瞬时或组redis，则大量调用hub导致redis连接不可用，可以在items存id->redis连接

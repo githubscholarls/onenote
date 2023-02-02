@@ -1,0 +1,36 @@
+##windows安装docker->1开启Hyperv->2下载Docker Desktop->3下载适用于x64WSL2 Linux内核更新包->4cmd命令
+	1：桌面新建txt，复制以下Hyper-V包含内容，改名为Hyper-V.cmd，以管理员身份运行
+	2： https://www.docker.com/get-started
+	3：https://docs.microsoft.com/zh-cn/windows/wsl/wsl2-kernel
+	4：管理员命令
+		cd "C:\Program Files\Docker\Docker"
+		DockerCli.exe -SwitchDaemon
+	参考：https://www.jianshu.com/p/09d53c822cf8
+		vm和docker for window共存：https://zhbink.blog.csdn.net/article/details/109255605
+		关闭hyperv：bcdedit /set hypervisorlaunchtype off（以管理员身份运行）
+		开启hyperv：                                                          auto
+##集群：docker-machine使用virtualbox开启新的虚拟机，
+	 https://www.cnblogs.com/52fhy/p/8413029.html
+
+signal调客户端方法在redisstream流之后可能收不到消息
+
+
+Hyper-V
+{
+pushd "%~dp0"
+dir /b %SystemRoot%\servicing\Packages\*Hyper-V*.mum >hyper-v.txt
+for /f %%i in ('findstr /i . hyper-v.txt 2^>nul') do dism /online /norestart /add-package:"%SystemRoot%\servicing\Packages\%%i"
+del hyper-v.txt
+Dism /online /enable-feature /featurename:Microsoft-Hyper-V-All /LimitAccess /ALL
+}
+
+##在windows上部署.net core web到docker上
+	参考：https://www.cnblogs.com/yiting/p/13388155.html
+	注意：ENTRYPOINT ["dotnet", "Riz.Web.dll"]   dll文件为发布的项目名字.dll
+
+
+
+
+
+
+
