@@ -5,6 +5,41 @@ pg like 全模糊优化
 
 server=127.0.0.1;uid=sa;pwd=123456;database=Power
 
+
+sqlserver》》》
+
+>>存储
+	dbo.wshiMainline b WITH (NOLOCK)
+	--游标中
+	if cust_id is null
+	begin
+		...
+	else
+		...
+	end
+	--普通区域
+	if state = 0
+		set count=10;
+	else if state =1 
+		set count =15;
+	else
+		set count =5;
+	end
+	--游标中查询
+	DECLARE My_Cursor1 CURSOR
+                      FOR(使用orderby，不能要外面括号
+		      );
+	SELECT @wlcount = COUNT(1)--给变量赋值
+         FROM dbo.wshiMainline WITH (NOLOCK)
+         WHERE cust_id = @i_cust_id
+	 --提前返回
+	 IF @wlcount >= 3200
+             BEGIN
+                 SELECT 2000;
+                 RETURN 0 ;
+         END;
+
+
 mysql》》》
 判断MySQL表是否存在
 	$"select count(1) from information_schema.tables where table_name ='grouplist_{proc_guid}'";
