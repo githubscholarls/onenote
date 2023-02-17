@@ -42,7 +42,8 @@ sqlserver》》》
 	 WHILE @@FETCH_STATUS = 0
                      BEGIN
 		     END(格式要对应)
-
+	--分区后不能筛选 排序的记录，要再套一层
+	select ROW_NUMBER() over( partition by column1  order by (case when state>0 then 2 when state=-1 then 1 when state=-2 then 1 else 0 end) desc ) as parNum  from 	table1 where parNum(取不到)                 	
 
 mysql》》》
 判断MySQL表是否存在
