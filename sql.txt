@@ -10,7 +10,7 @@ sqlserver》》》
 
 >>存储
 	dbo.wshiMainline b WITH (NOLOCK)
-	--游标中
+	--游标中(不确定)
 	if cust_id is null
 	begin
 		...
@@ -38,6 +38,10 @@ sqlserver》》》
                  SELECT 2000;
                  RETURN 0 ;
          END;
+	 --注意游标不存在
+	 WHILE @@FETCH_STATUS = 0
+                     BEGIN
+		     END(格式要对应)
 
 
 mysql》》》
