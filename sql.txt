@@ -39,11 +39,20 @@ sqlserver》》》
                  RETURN 0 ;
          END;
 	 --注意游标不存在
-	 WHILE @@FETCH_STATUS = 0
-                     BEGIN
-		     END(格式要对应)
+	 关于游标的作用域：
+	游标的作用域分有两种：
+	Local：作用域为局部，只在定义它的批处理，存储过程或触发器中有效。
+	Global：作用域为全局，由连接执行的任何存储过程或批处理中，都可以引用该游标
+	存储过程中声明的游标若不指定作用域则视具体数据库的设置而定，查看当前默认是Global还是Local，可以使用下面的语句查看：
+
+	select is_local_cursor_default from sys.databases where name = '[your database name]'
+	返回值为0代表默认为Global，1代表为Local。
+	 
 	--分区后不能筛选 排序的记录，要再套一层
-	select ROW_NUMBER() over( partition by column1  order by (case when state>0 then 2 when state=-1 then 1 when state=-2 then 1 else 0 end) desc ) as parNum  from 	table1 where parNum(取不到)                 	
+	select ROW_NUMBER() over( partition by column1  order by (case when state>0 then 2 when state=-1 then 1 when state=-2 then 1 else 0 end) desc ) as parNum  from 	table1 where parNum(取不到)    
+	
+	
+	
 
 mysql》》》
 判断MySQL表是否存在
