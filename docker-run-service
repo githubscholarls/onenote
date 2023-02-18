@@ -1,0 +1,26 @@
+--kafka
+
+docker network create app-tier --driver bridge
+
+docker run -d --name zookeeper-server
+  --network app-tier 
+  -e ALLOw_ANONYMOUS_LOGIN=yes bitnami/zookeeper:latest
+  
+docker run -d --name kafka-server \
+  --network app-tier \
+  -p 9092 : 9092\
+  -e ALLOw_PLAINTEXT_LISTENER=yes \
+  -e KAFKA_CFG_Z00KEEPER_CONNECT=zookeeper-server:2181 \
+  -e KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT:/ /192.168.0.101:9092 \bitnami/kafka:latest
+  
+docker run --name kafka-manager -d\
+  --network app-tier \
+  -p 9000 : 9000\
+  -e ZK_HOSTS="zookeeper-server:2181"\sheepkiller/kafka-manager
+  
+docker run -d --name kafka-map l
+  --network app-tier l
+  -p 9001 :8080 \
+  -v /opt/kafka-map/data : /usr/local/kafka-map/data l-e DEFAULT_USERNAME=admin \
+  -e DEFAULT_PASSWORD=admin \
+  --restart always dushixiang/kafka-map:latest
