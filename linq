@@ -11,3 +11,7 @@ var groupJoinQuery2 =
                            orderby prod2.Name
                            select prod2
             };
+
+
+--不能select 一个分组
+(group c by c.name into  ac  select ac).ToList();
