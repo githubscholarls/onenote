@@ -25,10 +25,7 @@ services.AddDbContextPool<JobDb>(option =>
 ##增删查改
 使用LastOrDefault必须先进行排序
 
-Find是直接访问数据库的
-
-Remove只能删除context所追踪的数据，即先查出来才能删除
-修改也只能修改context所追踪的对象
+Find是直接访问数据库的,如果上下文又则不访问数据库，firstordefault每次请求数据库
 
 Update（object）将对象设为追踪状态，除主键均为修改状态(可以设定某个为修改状态)
 对于传来的json或者没有没追踪到的数据，可以使用context.update直接追踪
@@ -39,6 +36,23 @@ Attach可以只将某个修改的值设为修改状态，其他的不会被更�
 Add	添加数据（有主键）		添加数据（无主键）
 Update	修改数据（有主键）		同上
 Attach	不变化（有主键）		同上
+
+修改 	修改也只能修改context所追踪的对象
+1:	var model = db.Student.Find(1);
+	model.Name="修改后"; 
+2:	var model  =db.Sudent.Find(1);
+	model.Name="只修改一个字段";
+	db.Entry(model).State= EntityState.Modify;
+	
+删除	Remove只能删除context所追踪的数据，即先查出来才能删除
+1：	var model = db.Student.Find(1);
+	db.Remove(model);
+2:	var newModel = new Student(){id=1};
+	db.Student.Attach(newModel);
+	db.Student.Remove(newModel);
+3:	var newModel = new Student(){id=1};
+	db.Entry(newModel).State=EntityState.Deleted;
+
 
 Context无法追踪匿名类，只能追踪它识别的类，但它里面有识别的类仍可以追踪到
 Context.Set<>可以追踪到，没有在Dbset中体现，但与dbset有关联的类
