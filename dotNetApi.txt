@@ -1,3 +1,12 @@
+DI
+程序集Microsoft.Extensions.Options.ConfigurationExtensions
+services.Configure<BaiDuOptions>(configuration.GetSection("BaiDu"));
+
+
+
+
+
+
 内容协商
 
 public void ConfigureServices(IserviceCollection services)
