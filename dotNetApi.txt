@@ -4,6 +4,8 @@ services.Configure<BaiDuOptions>(configuration.GetSection("BaiDu"));
 
 
 
+txt
+对于接口传入object 含有valuekind   ， 反序列化时需要  JsonConvert.DeserializeObject<Type>(Convert.ToString(request.data))
 
 
 
