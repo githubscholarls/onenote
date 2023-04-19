@@ -5,7 +5,7 @@ struct and class
 需要存储引用而不是strcut时（因为struct在传给其他方法时，会产生值复制），这时应该使用class
 
 
-dictionary
+集合类型dictionary list
 避免赋值为null，使用clear
 
 concurrentdictionary
