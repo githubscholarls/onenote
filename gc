@@ -1,0 +1,14 @@
+struct and class 
+当你的存储的类型字段较少时，应该使用strcut
+这个变量存活周期较长时，我们应该使用class 例如：该变量需要在多个方法传递
+当需要存储几千个以上的对象时，应该使用class
+需要存储引用而不是strcut时（因为struct在传给其他方法时，会产生值复制），这时应该使用class
+
+
+dictionary
+避免赋值为null，使用clear
+
+concurrentdictionary
+多线程下会有锁竞争，比较消耗cpu
+意外的死循环，直接导致cpu暴涨
+
