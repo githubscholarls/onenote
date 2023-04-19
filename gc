@@ -9,6 +9,6 @@ dictionary
 避免赋值为null，使用clear
 
 concurrentdictionary
-多线程下会有锁竞争，比较消耗cpu
+可并发读写，内部是加锁的，多线程下会有锁竞争，比较消耗cpu
 意外的死循环，直接导致cpu暴涨
 
