@@ -12,3 +12,5 @@ concurrentdictionary
 可并发读写，内部是加锁的，多线程下会有锁竞争，比较消耗cpu
 意外的死循环，直接导致cpu暴涨
 
+task->valueTask
+如果task仅仅使用await，防止在高并发下，反复分配task导致gc压力增加，改为valuetask
