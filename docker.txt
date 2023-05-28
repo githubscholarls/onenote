@@ -224,3 +224,24 @@ docker service
           - docker service update --endpoint-mode dnsrr 服务名
           # 添加新的配置文件到容器内
           - docker service update --config-add 配置文件名称，target=/../容器内配置文件名 服务名
+	  
+	  
+linuxdocker
+
+	安装docker
+	 yum  remove docker docker-client docker-client-latest
+	 docker-common docker-latest docker-latest-logrotate docker-logrotate
+	 docker-selinux docker-engine-selinux docker-engine -y
+	 安装docker-ce
+	   yum install -y yum-utils device-mapper-persistent-data lvm2
+	 添加稳定版本源
+	 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+	 安装dockeer-ce
+	 yum install docker-ce
+	 启动docker
+	 systemctl start docker
+	 卸载docker
+	 yum remove docker-ce
+	 
+	 
+	  
