@@ -224,7 +224,8 @@ docker service
           - docker service update --endpoint-mode dnsrr 服务名
           # 添加新的配置文件到容器内
           - docker service update --config-add 配置文件名称，target=/../容器内配置文件名 服务名
-	  
+
+<--本地打包镜像上传到服务器，linux拉取并运行-->
 	  
 linuxdocker
 
@@ -244,4 +245,15 @@ linuxdocker
 	 yum remove docker-ce
 	 
 	 
+windowdocker
+	项目添加docker支持，移动到sln目录，（maybe modify dockerfile）
+	run docker-desktop
+	docker build -t image1 .
+	open powershell
+	docker login .......
+	docker image ls
+	docker tag image1 dockerscholar/image:1.1
+	docker push dockerscholar/image:1.1
+	ok
+	
 	  
