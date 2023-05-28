@@ -229,10 +229,22 @@ docker service
 	  
 linuxdocker
 
+	sf可能yum不可用
+		error: loaded pulugins:fastest mirror
+		
+		解决
+			vi /etc/yum/pulginconf.d/fastestmirror.conf
+				enabled = 1 # 由1改为0  表示禁用这个出错的插件
+			vi /etc/yum.conf
+				pulgins = 1 # 由1改为0  不适用插件
+			yum clean all
+			yum clean dbcache
+			yum makecache
+
 	安装docker
-	 yum  remove docker docker-client docker-client-latest
-	 docker-common docker-latest docker-latest-logrotate docker-logrotate
-	 docker-selinux docker-engine-selinux docker-engine -y
+	 --yum  remove docker docker-client docker-client-latest
+	 --docker-common docker-latest docker-latest-logrotate docker-logrotate
+	 --docker-selinux docker-engine-selinux docker-engine -y
 	 安装docker-ce
 	   yum install -y yum-utils device-mapper-persistent-data lvm2
 	 添加稳定版本源
