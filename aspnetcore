@@ -10,7 +10,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     .UseExceptionless()
     .ConfigureWebHostDefaults(webBuilder =>
     {
-        //只能配置一个，后面覆盖前面启动类
+        //只能配置一个，后面覆盖前面启动类 ,内部configureServices不用再次注入即可使用 容器中所有注入，引入api
         webBuilder.UseStartup<Startup>();
     })
     .ConfigureServices((hostContext, services) =>
