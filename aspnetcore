@@ -1,0 +1,27 @@
+控制台：
+
+IHost host = Host.CreateDefaultBuilder(args)
+    .ConfigureLogging(logging =>
+    {
+        logging.ClearProviders();
+        logging.AddConsole();
+        logging.AddExceptionless();
+    })
+    .UseExceptionless()
+    .ConfigureWebHostDefaults(webBuilder =>
+    {
+        //只能配置一个，后面覆盖前面启动类
+        webBuilder.UseStartup<Startup>();
+    })
+    .ConfigureServices((hostContext, services) =>
+    {
+        services.AddExceptionless();
+        //or
+        // services.AddExceptionless("API_KEY_HERE");
+        services.Configure<ConnectionOptions>(hostContext.Configuration.GetSection("ConnectionStrings"));
+        services.Configure<SummaryOptions>(hostContext.Configuration.GetSection("SummarySetting"));
+
+        //可以添加多个 同时生效  无所谓注入位置，内部只能Inject单例，使用其他则使用serviceProvide创建
+        services.AddHostedService<Worker>();
+    }).Build();
+await host.RunAsync();
