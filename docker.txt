@@ -269,6 +269,7 @@ windowdocker
 	ok
 	
 时间问题：
+	方式1：
 	运行中容器中项目是是标准时间，date也是标准时间，
 	尝试修改容器中时间（进入容器执行）
 	ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
@@ -277,5 +278,10 @@ windowdocker
 	重启容器，项目中时间已改为上海时区
 	总结：修改运行中容器时间，进入容器执行命令，重启容器即可生效。
 	
-	
+	方式2：
+	启动容器时间设置ENV
+	总结：docker run -e TZ="Asia/Shanghai" -itd  --name testJobTime dockerscholar/exceptionless
+
+	方式3：
+	dockerfile设置
 
