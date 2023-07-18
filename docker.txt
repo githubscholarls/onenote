@@ -268,4 +268,14 @@ windowdocker
 	docker push dockerscholar/image:1.1
 	ok
 	
-	  
+时间问题：
+	运行中容器中项目是是标准时间，date也是标准时间，
+	尝试修改容器中时间（进入容器执行）
+	ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+	dpkg-reconfigure --frontend noninteractive tzdata
+	打印date，改为上海时区，但是项目中没变化
+	重启容器，项目中时间已改为上海时区
+	总结：修改运行中容器时间，进入容器执行命令，重启容器即可生效。
+	
+	
+
