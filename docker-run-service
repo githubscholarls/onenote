@@ -34,3 +34,7 @@ docker volume create mongo-volume
 docker run --name mongo -v mongo-volume:/data/db -p 27017:27017 -d mongo:4.0
 
 docker run --name mongo-express -d  --link mongo:mongo -p 8081:8081 mongo-express
+
+//cpu procdump demo
+docker run -itd --name net5apivol2 --privileged  -p 82:80 -v net5vol2:/app dockerscholar/net5api
+
