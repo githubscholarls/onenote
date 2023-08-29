@@ -1,12 +1,20 @@
 pg like 全模糊优化
  create index t1_c1_gin_idx on t1 using gin(c1 gin_trgm_ops);
 
+Host=192.168.0.113:5432;Username=content;Password=123;Database=ContentDB;Command Timeout=3;
 
+表使用serial4 序列
+id 为serial4自动创建 表_id_seq 序列
 
-server=127.0.0.1;uid=sa;pwd=123456;database=Power
+某用户没有序列权限》》
+--查看序列的权限
+SELECT relname, relkind, relacl FROM pg_class WHERE relkind IN ('S', 's') AND relname ='table1_id_seq';
+--将系列权限授予用户
+GRANT USAGE ON SEQUENCE table1_id_seq TO content_user;
 
 
 sqlserver》》》
+server=127.0.0.1;uid=sa;pwd=123456;database=Power
 
 >>存储
 	dbo.wshiMainline b WITH (NOLOCK)
