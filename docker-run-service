@@ -38,3 +38,7 @@ docker run --name mongo-express -d  --link mongo:mongo -p 8081:8081 mongo-expres
 //cpu procdump demo
 docker run -itd --name net5apivol2 --privileged  -p 82:80 -v net5vol2:/app dockerscholar/net5api
 
+//cms
+docker run -d  --name my-sscms     -p 5555:80     --restart=always      -e SSCMS_SECURITY_KEY=e2a3d303-ac9b-41ff-9154-930710af0845  -e SSCMS_DATABASE_TYPE=PostgreSQL -e  SSCMS_DATABASE_CONNECTION_STRING="Host=8.130.26.7;Port=5432;Username=postgres;Password=postgres;Database=cmscontent;Command Timeout=10"       sscms/core:latest
+
+
