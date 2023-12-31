@@ -41,4 +41,9 @@ docker run -itd --name net5apivol2 --privileged  -p 82:80 -v net5vol2:/app docke
 //cms
 docker run -d  --name my-sscms     -p 5555:80     --restart=always      -e SSCMS_SECURITY_KEY=e2a3d303-ac9b-41ff-9154-930710af0845  -e SSCMS_DATABASE_TYPE=PostgreSQL -e  SSCMS_DATABASE_CONNECTION_STRING="Host=8.130.26.7;Port=5432;Username=postgres;Password=postgres;Database=cmscontent;Command Timeout=10"       sscms/core:latest
 
+docker run -d --network prom -p 9090:9090 -v /C/Users/Administrator/Desktop/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
 
+docker run -d  --network prom  -p 3000:3000   --name=grafana   -v   /C/Users/Administrator/Desktop/grafana-storage:/var/lib/grafana  grafana/grafana
+
+
+ docker inspect 61 |  findstr "Port"
