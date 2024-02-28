@@ -45,5 +45,14 @@ docker run -d --network prom -p 9090:9090 -v /C/Users/Administrator/Desktop/prom
 
 docker run -d  --network prom  -p 3000:3000   --name=grafana   -v   /C/Users/Administrator/Desktop/grafana-storage:/var/lib/grafana  grafana/grafana
 
+docker run -d \
+    --name my-sscms \
+    -p 5034:80 \
+    --restart=always \
+    -v volume-sscms:/app/wwwroot \
+    -e SSCMS_SECURITY_KEY=e2a3d303-ac9b-41ff-9154-930710af0845 \
+    -e SSCMS_DATABASE_TYPE=PostgreSQL \
+    -e SSCMS_DATABASE_CONNECTION_STRING='Host=112.124.4.9;Username=postgres;Password=postgres;Database=cms' \
+    sscms/core:latest
 
  docker inspect 61 |  findstr "Port"
