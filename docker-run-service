@@ -52,7 +52,7 @@ docker run -d \
     -v volume-sscms:/app/wwwroot \
     -e SSCMS_SECURITY_KEY=e2a3d303-ac9b-41ff-9154-930710af0845 \
     -e SSCMS_DATABASE_TYPE=PostgreSQL \
-    -e SSCMS_DATABASE_CONNECTION_STRING='Host=112.124.4.9;Username=postgres;Password=postgres;Database=cms' \
+    -e SSCMS_DATABASE_CONNECTION_STRING='Host=112.124.4.9;Username=postgres;Password=postgres;Database=cms;' \
     sscms/core:latest
 
  docker inspect 61 |  findstr "Port"
