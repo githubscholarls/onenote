@@ -4,7 +4,7 @@
 	3：https://docs.microsoft.com/zh-cn/windows/wsl/wsl2-kernel
 	4：管理员命令
 		cd "C:\Program Files\Docker\Docker"
-		DockerCli.exe -SwitchDaemon
+		.\DockerCli.exe -SwitchDaemon
 	参考：https://www.jianshu.com/p/09d53c822cf8
 		vm和docker for window共存：https://zhbink.blog.csdn.net/article/details/109255605
 		关闭hyperv：bcdedit /set hypervisorlaunchtype off（以管理员身份运行）
