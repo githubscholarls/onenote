@@ -58,3 +58,15 @@ docker run -d \
  docker inspect 61 |  findstr "Port"
 
 docker run -itd -p 80:80 --name nginx  -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8  -v  /root/volumes/nginx/html:/usr/share/nginx/html  -v /root/volumes/nginx/conf/nginx.conf:/etc/nginx/nginx.conf -v /root/volumes/nginx/conf/conf.d:/etc/nginx/conf.d  -v /root/volumes/nginx/log:/var/log/nginx nginx
+
+
+docker run -it --name wp_zhusuji --restart unless-stopped -p 8813:80 -p 8814:443 --privileged=true  -v /root/volumes/wp_zhusuji:/var/www/html -d  wordpress
+
+docker run -it --name wp_zhusuji_mysql --restart unless-stopped -p 3306:3306 -v /root/volumes/wp_zhusuji_mysql:/var/lib/mysql -d -e MYSQL_ROOT_PASSWORD=123456  mysql:5.7
+
+docker run -itd -p 80:80 --name nginx --restart unless-stopped 
+-v  /root/volumes/nginx/html:/usr/share/nginx/html 
+-v /root/volumes/nginx/conf/nginx.conf:/etc/nginx/nginx.conf 
+-v /root/volumes/nginx/conf/conf.d:/etc/nginx/conf.d  
+-v /root/volumes/nginx/log:/var/log/nginx nginx
+
