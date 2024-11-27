@@ -64,4 +64,10 @@ docker cp nginx:/etc/nginx/conf.d    /root/volumes/nginx/conf.d
 docker cp nginx:/var/log/nginx   /root/volumes/nginx/log
 docker run -itd -p 80:80 --name nginx  -v  /root/volumes/nginx/html:/usr/share/nginx/html  -v /root/volumes/nginx/nginx.conf:/etc/nginx/nginx.conf -v /root/volumes/nginx/conf.d:/etc/nginx/conf.d  -v /root/volumes/nginx/log:/var/log/nginx nginx
 
+./start.sh
+git pull
+docker stop vue-element-project
+docker rm -f vue-element-project
+docker build -t vueproject .
+docker run -itd --name vue-element-project --net mytestnet -v /root/volumes/vueprojectnginx/html:/usr/share/nginx/html -v /root/volumes/vueprojectnginx/nginx.conf:/etc/nginx/nginx.conf -v /root/volumes/vueprojectnginx/conf.d:/etc/nginx/conf.d -v /root/volumes/vueprojectnginx/log:/var/log/nginx  --ip 172.18.0.2 -p 18020:80 -p 18021:443  vueproject
 
