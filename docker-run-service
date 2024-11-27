@@ -57,4 +57,4 @@ docker run -d \
 
  docker inspect 61 |  findstr "Port"
 
-docker run -itd -p 80:80 --name nginx  -v  /root/volumes/nginx/html:/usr/share/nginx/html  -v /root/volumes/nginx/conf/nginx.conf:/etc/nginx/nginx.conf -v /root/volumes/nginx/conf/conf.d:/etc/nginx/conf.d  -v /root/volumes/nginx/log:/var/log/nginx nginx
+docker run -itd -p 80:80 --name nginx  -v  /root/volumes/nginx/html:/usr/share/nginx/html  -v /root/volumes/nginx/nginx.conf:/etc/nginx/nginx.conf -v /root/volumes/nginx/conf.d:/etc/nginx/conf.d  -v /root/volumes/nginx/log:/var/log/nginx nginx
